@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ireland Biotech & MedTech Placement Explorer</title>
+  <meta name="description" content="Interactive dashboard ranking Irish medtech, pharma, and biotech companies for biotechnology placement students based near Mullingar, Co. Westmeath.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WPnI=" crossorigin=""></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="header-flag">🇮🇪</div>
+      <div class="header-text">
+        <h1>Ireland <span>Biotech &amp; MedTech</span> Placement Explorer</h1>
+        <div class="header-subtitle">
+          <span>Ranked for BSc Biotechnology graduates</span>
+          <span class="pill">TUS Midlands · US861</span>
+          <span class="pill green">📍 Based in Mullingar</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tab-bar" role="tablist">
+      <button class="tab-btn active" data-view="explorer" role="tab">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+        Company Explorer
+      </button>
+      <button class="tab-btn" data-view="map" role="tab">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+        Hub Map
+      </button>
+      <button class="tab-btn" data-view="resources" role="tab">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+        Job Resources
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- ── MAIN ───────────────────────────────────────────────────────────────── -->
+<main class="main-content">
+
+  <!-- ── EXPLORER VIEW ──────────────────────────────────────────────────── -->
+  <section id="explorer-view" class="view active" role="tabpanel">
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-icon">🏭</div>
+        <div>
+          <div class="stat-val" id="stat-total">—</div>
+          <div class="stat-label">Companies Profiled</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📍</div>
+        <div>
+          <div class="stat-val" id="stat-near">—</div>
+          <div class="stat-label">Within 100 km</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div>
+          <div class="stat-val" id="stat-score">—</div>
+          <div class="stat-label">Top Score / 5</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🗺️</div>
+        <div>
+          <div class="stat-val" id="stat-hubs">—</div>
+          <div class="stat-label">Regional Hubs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-bar">
+      <div class="controls-section">
+        <span class="controls-label">Sector</span>
+        <div class="chip-group">
+          <button class="chip active" data-type-filter="all">All</button>
+          <button class="chip type-pharma" data-type-filter="pharma">💊 Pharma</button>
+          <button class="chip type-biotech" data-type-filter="biotech">🧬 Biotech</button>
+          <button class="chip type-medtech" data-type-filter="medtech">🩺 MedTech</button>
+          <button class="chip type-cro" data-type-filter="cro">🔬 CRO</button>
+          <button class="chip type-cdmo" data-type-filter="cdmo">⚗️ CDMO</button>
+        </div>
+      </div>
+
+      <div class="controls-divider"></div>
+
+      <div class="controls-section">
+        <span class="controls-label">Hub</span>
+        <div class="chip-group">
+          <button class="chip active" data-hub-filter="all">All</button>
+          <button class="chip" data-hub-filter="midlands">🏡 Midlands</button>
+          <button class="chip" data-hub-filter="dublin">🏙️ Dublin</button>
+          <button class="chip" data-hub-filter="galway">🌊 Galway</button>
+          <button class="chip" data-hub-filter="limerick">🔴 Limerick</button>
+          <button class="chip" data-hub-filter="cork">🍺 Cork</button>
+          <button class="chip" data-hub-filter="waterford">💜 Waterford</button>
+          <button class="chip" data-hub-filter="other">📡 Other</button>
+        </div>
+      </div>
+
+      <div class="controls-divider"></div>
+
+      <div class="controls-section">
+        <span class="controls-label">Sort by</span>
+        <select class="sort-select" id="sort-select">
+          <option value="score">Overall Score</option>
+          <option value="distance">Distance (nearest first)</option>
+          <option value="degree">Degree Relevance</option>
+          <option value="grad">Grad Willingness</option>
+        </select>
+      </div>
+
+      <span class="result-count" id="result-count"></span>
+    </div>
+
+    <!-- Company grid -->
+    <div class="company-grid" id="company-grid"></div>
+  </section>
+
+  <!-- ── MAP VIEW ───────────────────────────────────────────────────────── -->
+  <section id="map-view" class="view" role="tabpanel">
+    <div style="margin-bottom:16px">
+      <h2 style="font-size:1.1rem;font-weight:800;color:#0d1f3c;margin-bottom:4px">Ireland Life Sciences Hubs</h2>
+      <p style="font-size:0.85rem;color:#6b7c9e">Click a hub card or map marker to explore. 🏠 = Mullingar (home base). Markers show composite score.</p>
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <span style="font-size:0.78rem;font-weight:700;color:#6b7c9e">MARKER KEY:</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:0.78rem;color:#1565c0;font-weight:600">
+        <span style="width:12px;height:12px;background:#1565c0;border-radius:50%;display:inline-block"></span>Pharma
+      </span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:0.78rem;color:#00796b;font-weight:600">
+        <span style="width:12px;height:12px;background:#00796b;border-radius:50%;display:inline-block"></span>Biotech
+      </span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:0.78rem;color:#c62828;font-weight:600">
+        <span style="width:12px;height:12px;background:#c62828;border-radius:50%;display:inline-block"></span>MedTech
+      </span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:0.78rem;color:#e65100;font-weight:600">
+        <span style="width:12px;height:12px;background:#e65100;border-radius:50%;display:inline-block"></span>CRO
+      </span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:0.78rem;color:#6a1b9a;font-weight:600">
+        <span style="width:12px;height:12px;background:#6a1b9a;border-radius:50%;display:inline-block"></span>CDMO
+      </span>
+    </div>
+
+    <div class="hub-layout">
+      <div>
+        <div id="map"></div>
+      </div>
+      <div>
+        <div class="hub-sidebar" id="hub-cards"></div>
+        <div class="hub-detail" id="hub-detail"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── RESOURCES VIEW ─────────────────────────────────────────────────── -->
+  <section id="resources-view" class="view" role="tabpanel">
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:1.1rem;font-weight:800;color:#0d1f3c;margin-bottom:4px">Job Resources &amp; Useful Links</h2>
+      <p style="font-size:0.85rem;color:#6b7c9e">Curated links for finding placements, researching companies, and developing your career as a biotech graduate in Ireland.</p>
+    </div>
+    <div class="resources-grid" id="resources-grid"></div>
+  </section>
+
+</main>
+
+<!-- ── DETAIL PANEL ───────────────────────────────────────────────────────── -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<aside class="detail-panel" id="detail-panel" role="dialog" aria-modal="true">
+  <div class="panel-header">
+    <button class="panel-close" id="panel-close" aria-label="Close">✕</button>
+    <div class="panel-company-name" id="panel-company-name"></div>
+    <div class="panel-meta">
+      <span class="panel-location" id="panel-location">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span id="panel-location-text"></span>
+      </span>
+      <span class="type-badge" id="panel-type-badge"></span>
+    </div>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+</aside>
+
+<!-- Data and app -->
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
